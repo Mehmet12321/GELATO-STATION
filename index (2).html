@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gelato Station - Autentisk Italiensk Glass i Göteborg</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;600&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            scroll-behavior: smooth;
+        }
+        
+        .hero {
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://www.gp.se/images/article/1f0708ac-2e72-4979-875c-9b0f84845066/images/0HlEiuF90xEY4nOdvvJf7da6yBpU-REGULAR.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .title-font {
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .flavor-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .order-btn {
+            transition: all 0.3s ease;
+        }
+        
+        .order-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .cart-item {
+            transition: all 0.3s ease;
+        }
+        
+        .cart-item:hover {
+            background-color: rgba(245, 245, 245, 0.8);
+        }
+        
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-amber-50">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-white shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSJIllSVmJV3tVpH0FTuVnRgEizOdDg-418wA&s" alt="Gelato Station Logo" class="h-16 w-16 rounded-full">
+                <h1 class="ml-3 text-2xl font-bold text-amber-800 title-font">Gelato Station</h1>
+            </div>
+            <nav class="hidden md:flex space-x-8">
+                <a href="#menu" class="text-amber-900 hover:text-amber-600 font-medium">Meny</a>
+                <a href="#about" class="text-amber-900 hover:text-amber-600 font-medium">Om oss</a>
+                <a href="#hours" class="text-amber-900 hover:text-amber-600 font-medium">Öppettider</a>
+                <a href="#faq" class="text-amber-900 hover:text-amber-600 font-medium">FAQ</a>
+                <a href="#contact" class="text-amber-900 hover:text-amber-600 font-medium">Kontakt</a>
+            </nav>
+            <button id="cart-toggle" class="relative p-2 text-amber-900 hover:text-amber-600">
+                <i class="fas fa-shopping-cart text-2xl"></i>
+                <span id="cart-count" class="absolute -top-1 -right-1 bg-amber-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">0</span>
+            </button>
+            <button id="mobile-menu-toggle" class="md:hidden text-amber-900">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t">
+            <div class="container mx-auto px-4 py-2 flex flex-col space-y-3">
+                <a href="#menu" class="text-amber-900 hover:text-amber-600 py-2">Meny</a>
+                <a href="#about" class="text-amber-900 hover:text-amber-600 py-2">Om oss</a>
+                <a href="#hours" class="text-amber-900 hover:text-amber-600 py-2">Öppettider</a>
+                <a href="#faq" class="text-amber-900 hover:text-amber-600 py-2">FAQ</a>
+                <a href="#contact" class="text-amber-900 hover:text-amber-600 py-2">Kontakt</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Shopping Cart Sidebar -->
+    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-96 bg-white shadow-lg transform translate-x-full transition-transform duration-300 z-50 overflow-y-auto">
+        <div class="p-4 border-b flex justify-between items-center">
+            <h3 class="text-xl font-bold text-amber-800">Din Beställning</h3>
+            <button id="close-cart" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div id="cart-items" class="p-4 space-y-3">
+            <!-- Cart items will be added here dynamically -->
+            <p id="empty-cart-message" class="text-gray-500 text-center py-8">Din varukorg är tom</p>
+        </div>
+        <div class="p-4 border-t">
+            <div class="flex justify-between mb-4">
+                <span class="font-bold">Totalt:</span>
+                <span id="cart-total" class="font-bold">0 kr</span>
+            </div>
+            <button id="checkout-btn" class="w-full bg-amber-600 hover:bg-amber-700 text-white py-3 rounded-lg font-bold transition-colors">
+                Gå till kassan
+            </button>
+        </div>
+    </div>
+    <div id="cart-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
+
+    <!-- Hero Section -->
+    <section class="hero min-h-screen flex items-center justify-center text-center text-white">
+        <div class="container mx-auto px-4">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSJIllSVmJV3tVpH0FTuVnRgEizOdDg-418wA&s" alt="Gelato Station Logo" class="h-32 w-32 rounded-full mx-auto mb-6 border-4 border-white">
+            <h1 class="text-4xl md:text-6xl font-bold mb-6 title-font">Gelato Station</h1>
+            <p class="text-xl md:text-2xl mb-8 max-w-2xl mx-auto">Autentisk italiensk glass i hjärtat av Göteborg</p>
+            <div class="flex flex-col md:flex-row justify-center gap-4">
+                <a href="#menu" class="bg-amber-600 hover:bg-amber-700 text-white px-8 py-3 rounded-full text-lg font-bold order-btn">
+                    Beställ nu
+                </a>
+                <a href="#about" class="bg-white hover:bg-gray-100 text-amber-800 px-8 py-3 rounded-full text-lg font-bold order-btn">
+                    Upptäck oss
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-8 md:mb-0 md:pr-8">
+                    <h2 class="text-3xl font-bold text-amber-800 mb-6 title-font">Vår historia</h2>
+                    <p class="text-gray-700 mb-4">
+                        Gelato Station grundades 2015 med en passion för äkta italiensk gelato. Vår grundare, Marco, kom till Sverige från Florens med familjens hemliga recept och en dröm om att dela den autentiska italienska glassupplevelsen med Göteborg.
+                    </p>
+                    <p class="text-gray-700 mb-4">
+                        All vår glass tillverkas på plats med lokala råvaror av högsta kvalitet kombinerat med importerade italienska specialingredienser. Vi använder endast naturliga färgämnen och smakförstärkare.
+                    </p>
+                    <p class="text-gray-700">
+                        Besök oss på Friggagatan 14 och upplev skillnaden mellan vanlig glass och riktig italiensk gelato!
+                    </p>
+                </div>
+                <div class="md:w-1/2">
+                    <img src="https://www.gp.se/images/article/1f0708ac-2e72-4979-875c-9b0f84845066/images/0HlEiuF90xEY4nOdvvJf7da6yBpU-REGULAR.jpg" alt="Gelato Station interiör" class="rounded-lg shadow-xl w-full h-auto">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Menu Section -->
+    <section id="menu" class="py-16 bg-amber-50">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center text-amber-800 mb-12 title-font">Vår Meny</h2>
+            
+            <!-- Gelato Flavors -->
+            <div class="mb-16">
+                <h3 class="text-2xl font-bold text-amber-700 mb-6 title-font">Gelato</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Flavor 1 -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden flavor-card transition-all duration-300">
+                        <img src="https://images.unsplash.com/photo-1563805042-7684c019e1cb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Vanilj" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h4 class="font-bold text-xl text-amber-800 mb-2">Vanilj</h4>
+                            <p class="text-gray-600 mb-4">Klassisk madagaskarvanilj med romantiska vaniljfrön.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-amber-700">45 kr</span>
+                                <button class="add-to-cart bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-full text-sm font-bold order-btn" data-name="Vanilj" data-price="45">
+                                    Lägg till
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Flavor 2 -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden flavor-card transition-all duration-300">
+                        <img src="https://images.unsplash.com/photo-1615478503562-ec96344316dc?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Choklad" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h4 class="font-bold text-xl text-amber-800 mb-2">Choklad</h4>
+                            <p class="text-gray-600 mb-4">Mörk belgisk choklad med 70% kakao.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-amber-700">45 kr</span>
+                                <button class="add-to-cart bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-full text-sm font-bold order-btn" data-name="Choklad" data-price="45">
+                                    Lägg till
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Flavor 3 -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden flavor-card transition-all duration-300">
+                        <img src="https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Jordgubb" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h4 class="font-bold text-xl text-amber-800 mb-2">Jordgubb</h4>
+                            <p class="text-gray-600 mb-4">Färska svenska jordgubbar i säsong.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-amber-700">50 kr</span>
+                                <button class="add-to-cart bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-full text-sm font-bold order-btn" data-name="Jordgubb" data-price="50">
+                                    Lägg till
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Flavor 4 -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden flavor-card transition-all duration-300">
+                        <img src="https://images.unsplash.com/photo-1530089711121-0f9d227d9e2c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Pistage" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h4 class="font-bold text-xl text-amber-800 mb-2">Pistage</h4>
+                            <p class="text-gray-600 mb-4">Siciliansk pistage med salta noter.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-amber-700">55 kr</span>
+                                <button class="add-to-cart bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-full text-sm font-bold order-btn" data-name="Pistage" data-price="55">
+                                    Lägg till
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Flavor 5 -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden flavor-card transition-all duration-300">
+                        <img src="https://images.unsplash.com/photo-1562440499-64c9a111f713?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Citron" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h4 class="font-bold text-xl text-amber-800 mb-2">Citron</h4>
+                            <p class="text-gray-600 mb-4">Fräsch siciliansk citron med lätt syrlighet.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-amber-700">45 kr</span>
+                                <button class="add-to-cart bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-full text-sm font-bold order-btn" data-name="Citron" data-price="45">
+                                    Lägg till
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Flavor 6 -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden flavor-card transition-all duration-300">
+                        <img src="https://images.unsplash.com/photo-1563805042-0410a6d4c384?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Hasselnöt" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h4 class="font-bold text-xl text-amber-800 mb-2">Hasselnöt</h4>
+                            <p class="text-gray-600 mb-4">Piemontesiska hasselnötter med djup smak.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-amber-700">55 kr</span>
+                                <button class="add-to-cart bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-full text-sm font-bold order-btn" data-name="Hasselnöt" data-price="55">
+                                    Lägg till
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sorbets -->
+            <div class="mb-16">
+                <h3 class="text-2xl font-bold text-amber-700 mb-6 title-font">Sorbet</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Sorbet 1 -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden flavor-card transition-all duration-300">
+                        <img src="https://images.unsplash.com/photo-1559181567-c3190ca9959b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Hallon" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h4 class="font-bold text-xl text-amber-800 mb-2">Hallon</h4>
+                            <p class="text-gray-600 mb-4">Färska svenska hallon i säsong.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-amber-700">50 kr</span>
+                                <button class="add-to-cart bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-full text-sm font-bold order-btn" data-name="Hallon Sorbet" data-price="50">
+                                    Lägg till
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sorbet 2 -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden flavor-card transition-all duration-300">
+                        <img src="https://images.unsplash.com/photo-1603569283847-aa6a0c57cb3b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Mango" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h4 class="font-bold text-xl text-amber-800 mb-2">Mango</h4>
+                            <p class="text-gray-600 mb-4">Söt och fruktig tropisk mango.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-amber-700">50 kr</span>
+                                <button class="add-to-cart bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-full text-sm font-bold order-btn" data-name="Mango Sorbet" data-price="50">
+                                    Lägg till
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sorbet 3 -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden flavor-card transition-all duration-300">
+                        <img src="https://images.unsplash.com/photo-1603569283847-aa6a0c57cb3b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Passionsfrukt" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h4 class="font-bold text-xl text-amber-800 mb-2">Passionsfrukt</h4>
+                            <p class="text-gray-600 mb-4">Exotisk och syrlig passionsfrukt.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-amber-700">50 kr</span>
+                                <button class="add-to-cart bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-full text-sm font-bold order-btn" data-name="Passionsfrukt Sorbet" data-price="50">
+                                    Lägg till
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Toppings -->
+            <div>
+                <h3 class="text-2xl font-bold text-amber-700 mb-6 title-font">Tillbehör</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Topping 1 -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden flavor-card transition-all duration-300">
+                        <img src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Vispad grädde" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h4 class="font-bold text-xl text-amber-800 mb-2">Vispad grädde</h4>
+                            <p class="text-gray-600 mb-4">Luftig vispad grädde på toppen.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-amber-700">15 kr</span>
+                                <button class="add-to-cart bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-full text-sm font-bold order-btn" data-name="Vispad grädde" data-price="15">
+                                    Lägg till
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Topping 2 -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden flavor-card transition-all duration-300">
+                        <img src="https://images.unsplash.com/photo-1609950228017-1c0a562d6c82?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Chokladsås" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h4 class="font-bold text-xl text-amber-800 mb-2">Chokladsås</h4>
+                            <p class="text-gray-600 mb-4">Varm belgisk chokladsås.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-amber-700">20 kr</span>
+                                <button class="add-to-cart bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-full text-sm font-bold order-btn" data-name="Chokladsås" data-price="20">
+                                    Lägg till
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Topping 3 -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden flavor-card transition-all duration-300">
+                        <img src="https://images.unsplash.com/photo-1609950228017-1c0a562d6c82?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Karamellsås" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h4 class="font-bold text-xl text-amber-800 mb-2">Karamellsås</h4>
+                            <p class="text-gray-600 mb-4">Söt och salt karamellsås.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-amber-700">20 kr</span>
+                                <button class="add-to-cart bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-full text-sm font-bold order-btn" data-name="Karamellsås" data-price="20">
+                                    Lägg till
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Opening Hours Section -->
+    <section id="hours" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center text-amber-800 mb-12 title-font">Öppettider</h2>
+            <div class="max-w-md mx-auto bg-amber-50 rounded-lg shadow-md overflow-hidden">
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div class="flex justify-between border-b pb-2">
+                            <span class="font-medium">Måndag</span>
+                            <span>10:00 - 23:00</span>
+                        </div>
+                        <div class="flex justify-between border-b pb-2">
+                            <span class="font-medium">Tisdag</span>
+                            <span>10:00 - 23:00</span>
+                        </div>
+                        <div class="flex justify-between border-b pb-2">
+                            <span class="font-medium">Onsdag</span>
+                            <span>10:00 - 23:00</span>
+                        </div>
+                        <div class="flex justify-between border-b pb-2">
+                            <span class="font-medium">Torsdag</span>
+                            <span>10:00 - 23:00</span>
+                        </div>
+                        <div class="flex justify-between border-b pb-2">
+                            <span class="font-medium">Fredag</span>
+                            <span>10:00 - 23:00</span>
+                        </div>
+                        <div class="flex justify-between border-b pb-2">
+                            <span class="font-medium">Lördag</span>
+                            <span>10:00 - 23:00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="font-medium">Söndag</span>
+                            <span>10:00 - 23:00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="py-16 bg-amber-50">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center text-amber-800 mb-12 title-font">Vanliga frågor</h2>
+            <div class="max-w-3xl mx-auto space-y-4">
+                <!-- FAQ Item 1 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <button class="faq-question w-full text-left p-4 font-medium text-amber-800 hover:bg-amber-100 flex justify-between items-center">
+                        <span>Vad är skillnaden mellan gelato och vanlig glass?</span>
+                        <i class="fas fa-chevron-down transition-transform duration-300"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="p-4 text-gray-700 border-t">
+                            Gelato innehåller mindre luft än vanlig glass (överrun) vilket ger en tätare och mer intensiv smak. Den har också lägre fetthalt men högre sockerhalt, och serveras vid en något högre temperatur vilket gör smakerna mer framträdande.
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- FAQ Item 2 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <button class="faq-question w-full text-left p-4 font-medium text-amber-800 hover:bg-amber-100 flex justify-between items-center">
+                        <span>Kan jag beställa glass online och hämta i butik?</span>
+                        <i class="fas fa-chevron-down transition-transform duration-300"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="p-4 text-gray-700 border-t">
+                            Ja, absolut! Du kan beställa via vår hemsida och välja en tidpunkt för upphämtning. När din beställning är klar får du ett meddelande och kan hämta din glass i kassan. Vi rekommenderar att du hämtar inom 30 minuter efter att du fått meddelandet.
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- FAQ Item 3 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <button class="faq-question w-full text-left p-4 font-medium text-amber-800 hover:bg-amber-100 flex justify-between items-center">
+                        <span>Har ni veganska alternativ?</span>
+                        <i class="fas fa-chevron-down transition-transform duration-300"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="p-4 text-gray-700 border-t">
+                            Ja, alla våra sorbets är veganska då de endast innehåller frukt, socker och vatten. Vi har även några veganska gelato-sorter baserade på mandel- eller havre-mjölk. Fråga personalen om dagens veganska alternativ!
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- FAQ Item 4 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <button class="faq-question w-full text-left p-4 font-medium text-amber-800 hover:bg-amber-100 flex justify-between items-center">
+                        <span>Kan jag boka Gelato Station för ett event?</span>
+                        <i class="fas fa-chevron-down transition-transform duration-300"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="p-4 text-gray-700 border-t">
+                            Absolut! Vi erbjuder catering för alla typer av evenemang - från födelsedagsfester till företagsevent. Vi kan komma med vår mobila gelatostation eller ordna en glassbuffé. Kontakta oss via e-post eller telefon för att diskutera dina behov.
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- FAQ Item 5 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <button class="faq-question w-full text-left p-4 font-medium text-amber-800 hover:bg-amber-100 flex justify-between items-center">
+                        <span>Hur länge håller sig gelaton hemma i frysen?</span>
+                        <i class="fas fa-chevron-down transition-transform duration-300"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="p-4 text-gray-700 border-t">
+                            Vår gelato är bäst inom 7 dagar från köp, men kan tekniskt sett hålla i upp till 3 veckor i frysen. För bästa smakupplevelse, låt gelaton tinas i kylskåpet i 15-20 minuter innan servering. Tänk på att sorbets kan bli hårdare än gelato i frysen.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center text-amber-800 mb-12 title-font">Kontakta oss</h2>
+            <div class="flex flex-col md:flex-row gap-8">
+                <div class="md:w-1/2">
+                    <div class="bg-amber-50 rounded-lg shadow-md p-6 h-full">
+                        <h3 class="text-xl font-bold text-amber-800 mb-4 title-font">Besök oss</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <i class="fas fa-map-marker-alt text-amber-600 mt-1 mr-3"></i>
+                                <div>
+                                    <p class="font-medium">Adress</p>
+                                    <p class="text-gray-700">Friggagatan 14, 411 12 Göteborg</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fas fa-phone-alt text-amber-600 mt-1 mr-3"></i>
+                                <div>
+                                    <p class="font-medium">Telefon</p>
+                                    <p class="text-gray-700">031-123 45 67</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fas fa-envelope text-amber-600 mt-1 mr-3"></i>
+                                <div>
+                                    <p class="font-medium">E-post</p>
+                                    <p class="text-gray-700">info@gelatostation.se</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-6">
+                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2131.986870829283!2d11.973215315992202!3d57.69691128112171!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x464ff30de7d0e3a9%3A0x1d4e67b5d5c0b5e5!2sFriggagatan%2014%2C%20411%2012%20G%C3%B6teborg!5e0!3m2!1ssv!2sse!4v1620000000000!5m2!1ssv!2sse" width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy" class="rounded-lg"></iframe>
+                        </div>
+                    </div>
+                </div>
+                <div class="md:w-1/2">
+                    <div class="bg-amber-50 rounded-lg shadow-md p-6 h-full">
+                        <h3 class="text-xl font-bold text-amber-800 mb-4 title-font">Kontaktformulär</h3>
+                        <form class="space-y-4">
+                            <div>
+                                <label for="name" class="block text-gray-700 font-medium mb-1">Namn</label>
+                                <input type="text" id="name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500">
+                            </div>
+                            <div>
+                                <label for="email" class="block text-gray-700 font-medium mb-1">E-post</label>
+                                <input type="email" id="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500">
+                            </div>
+                            <div>
+                                <label for="subject" class="block text-gray-700 font-medium mb-1">Ämne</label>
+                                <input type="text" id="subject" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500">
+                            </div>
+                            <div>
+                                <label for="message" class="block text-gray-700 font-medium mb-1">Meddelande</label>
+                                <textarea id="message" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"></textarea>
+                            </div>
+                            <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-lg font-bold transition-colors w-full">
+                                Skicka meddelande
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-amber-800 text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <div class="flex items-center">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSJIllSVmJV3tVpH0FTuVnRgEizOdDg-418wA&s" alt="Gelato Station Logo" class="h-12 w-12 rounded-full">
+                        <h2 class="ml-3 text-2xl font-bold title-font">Gelato Station</h2>
+                    </div>
+                    <p class="mt-2 text-amber-200">Autentisk italiensk glass i hjärtat av Göteborg</p>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-amber-200 hover:text-white">
+                        <i class="fab fa-facebook-f text-xl"></i>
+                    </a>
+                    <a href="#" class="text-amber-200 hover:text-white">
+                        <i class="fab fa-instagram text-xl"></i>
+                    </a>
+                    <a href="#" class="text-amber-200 hover:text-white">
+                        <i class="fab fa-twitter text-xl"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="border-t border-amber-700 mt-8 pt-8 text-center text-amber-200">
+                <p>&copy; 2023 Gelato Station. Alla rättigheter reserverade.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Checkout Modal -->
+    <div id="checkout-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-center border-b pb-4 mb-4">
+                    <h3 class="text-xl font-bold text-amber-800">Din beställning</h3>
+                    <button id="close-checkout" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div id="checkout-items" class="mb-6 space-y-3">
+                    <!-- Checkout items will be added here dynamically -->
+                </div>
+                
+                <div class="border-t pt-4 mb-6">
+                    <div class="flex justify-between font-bold text-lg">
+                        <span>Totalt:</span>
+                        <span id="checkout-total">0 kr</span>
+                    </div>
+                </div>
+                
+                <form id="checkout-form" class="space-y-4">
+                    <div>
+                        <label for="pickup-time" class="block text-gray-700 font-medium mb-1">Upphämtningstid</label>
+                        <select id="pickup-time" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500">
+                            <option value="asap">Så snart som möjligt</option>
+                            <option value="30min">Om 30 minuter</option>
+                            <option value="1h">Om 1 timme</option>
+                            <option value="custom">Ange tid</option>
+                        </select>
+                        <div id="custom-time-container" class="mt-2 hidden">
+                            <input type="datetime-local" id="custom-time" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="customer-name" class="block text-gray-700 font-medium mb-1">Ditt namn</label>
+                        <input type="text" id="customer-name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500">
+                    </div>
+                    
+                    <div>
+                        <label for="customer-phone" class="block text-gray-700 font-medium mb-1">Telefonnummer</label>
+                        <input type="tel" id="customer-phone" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500">
+                    </div>
+                    
+                    <div>
+                        <label for="customer-notes" class="block text-gray-700 font-medium mb-1">Övriga önskemål</label>
+                        <textarea id="customer-notes" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white py-3 rounded-lg font-bold transition-colors">
+                        Slutför beställning
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Confirmation Modal -->
+    <div id="confirmation-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6 text-center">
+            <div class="text-green-500 text-5xl mb-4">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-amber-800 mb-2">Tack för din beställning!</h3>
+            <p class="text-gray-700 mb-6">Din beställning är mottagen och kommer att vara redo för upphämtning vid den tid du valt. Ett bekräftelsemeddelande har skickats till ditt telefonnummer.</p>
+            <p class="text-gray-700 mb-6 font-medium">Ordernummer: <span id="order-number" class="text-amber-600">GS-12345</span></p>
+            <button id="close-confirmation" class="bg-amber-600 hover:bg-amber-700 text-white px-6 py-2 rounded-lg font-bold transition-colors">
+                Stäng
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuToggle.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+        
+        // Shopping cart functionality
+        const cartToggle = document.getElementById('cart-toggle');
+        const cartSidebar = document.getElementById('cart-sidebar');
+        const cartOverlay = document.getElementById('cart-overlay');
+        const closeCart = document.getElementById('close-cart');
+        const cartCount = document.getElementById('cart-count');
+        const cartItems = document.getElementById('cart-items');
+        const emptyCartMessage = document.getElementById('empty-cart-message');
+        const cartTotal = document.getElementById('cart-total');
+        const checkoutBtn = document.getElementById('checkout-btn');
+        
+        let cart = [];
+        
+        // Toggle cart sidebar
+        cartToggle.addEventListener('click', () => {
+            cartSidebar.classList.remove('translate-x-full');
+            cartOverlay.classList.remove('hidden');
+        });
+        
+        closeCart.addEventListener('click', () => {
+            cartSidebar.classList.add('translate-x-full');
+            cartOverlay.classList.add('hidden');
+        });
+        
+        cartOverlay.addEventListener('click', () => {
+            cartSidebar.classList.add('translate-x-full');
+            cartOverlay.classList.add('hidden');
+        });
+        
+        // Add to cart functionality
+        const addToCartButtons = document.querySelectorAll('.add-to-cart');
+        
+        addToCartButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const name = button.getAttribute('data-name');
+                const price = parseInt(button.getAttribute('data-price'));
+                
+                // Check if item already exists in cart
+                const existingItem = cart.find(item => item.name === name);
+                
+                if (existingItem) {
+                    existingItem.quantity += 1;
+                } else {
+                    cart.push({
+                        name: name,
+                        price: price,
+                        quantity: 1
+                    });
+                }
+                
+                updateCart();
+                
+                // Show cart sidebar when adding first item
+                if (cart.length === 1) {
+                    cartSidebar.classList.remove('translate-x-full');
+                    cartOverlay.classList.remove('hidden');
+                }
+            });
+        });
+        
+        // Update cart display
+        function updateCart() {
+            // Update cart count
+            const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+            cartCount.textContent = totalItems;
+            
+            // Update cart items list
+            cartItems.innerHTML = '';
+            
+            if (cart.length === 0) {
+                emptyCartMessage.classList.remove('hidden');
+            } else {
+                emptyCartMessage.classList.add('hidden');
+                
+                let total = 0;
+                
+                cart.forEach((item, index) => {
+                    total += item.price * item.quantity;
+                    
+                    const cartItem = document.createElement('div');
+                    cartItem.className = 'cart-item bg-amber-50 rounded-lg p-3 flex justify-between items-center';
+                    cartItem.innerHTML = `
+                        <div>
+                            <h4 class="font-medium">${item.name}</h4>
+                            <p class="text-sm text-gray-600">${item.price} kr</p>
+                        </div>
+                        <div class="flex items-center">
+                            <button class="decrease-quantity px-2 py-1 text-amber-700 hover:text-amber-900" data-index="${index}">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <span class="mx-2">${item.quantity}</span>
+                            <button class="increase-quantity px-2 py-1 text-amber-700 hover:text-amber-900" data-index="${index}">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                            <button class="remove-item ml-4 text-red-500 hover:text-red-700" data-index="${index}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                    
+                    cartItems.appendChild(cartItem);
+                });
+                
+                // Update cart total
+                cartTotal.textContent = `${total} kr`;
+            }
+            
+            // Add event listeners to quantity buttons
+            document.querySelectorAll('.decrease-quantity').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const index = e.target.closest('button').getAttribute('data-index');
+                    if (cart[index].quantity > 1) {
+                        cart[index].quantity -= 1;
+                        updateCart();
+                    }
+                });
+            });
+            
+            document.querySelectorAll('.increase-quantity').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const index = e.target.closest('button').getAttribute('data-index');
+                    cart[index].quantity += 1;
+                    updateCart();
+                });
+            });
+            
+            document.querySelectorAll('.remove-item').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const index = e.target.closest('button').getAttribute('data-index');
+                    cart.splice(index, 1);
+                    updateCart();
+                });
+            });
+        }
+        
+        // Checkout functionality
+        const checkoutModal = document.getElementById('checkout-modal');
+        const closeCheckout = document.getElementById('close-checkout');
+        const checkoutItems = document.getElementById('checkout-items');
+        const checkoutTotal = document.getElementById('checkout-total');
+        const pickupTime = document.getElementById('pickup-time');
+        const customTimeContainer = document.getElementById('custom-time-container');
+        const checkoutForm = document.getElementById('checkout-form');
+        const confirmationModal = document.getElementById('confirmation-modal');
+        const closeConfirmation = document.getElementById('close-confirmation');
+        
+        checkoutBtn.addEventListener('click', () => {
+            // Update checkout items list
+            checkoutItems.innerHTML = '';
+            
+            let total = 0;
+            
+            cart.forEach(item => {
+                total += item.price * item.quantity;
+                
+                const checkoutItem = document.createElement('div');
+                checkoutItem.className = 'flex justify-between border-b pb-2';
+                checkoutItem.innerHTML = `
+                    <div>
+                        <h4 class="font-medium">${item.name}</h4>
+                        <p class="text-sm text-gray-600">${item.quantity} x ${item.price} kr</p>
+                    </div>
+                    <span class="font-medium">${item.price * item.quantity} kr</span>
+                `;
+                
+                checkoutItems.appendChild(checkoutItem);
+            });
+            
+            // Update checkout total
+            checkoutTotal.textContent = `${total} kr`;
+            
+            // Show checkout modal
+            cartSidebar.classList.add('translate-x-full');
+            checkoutModal.classList.remove('hidden');
+        });
+        
+        closeCheckout.addEventListener('click', () => {
+            checkoutModal.classList.add('hidden');
+        });
+        
+        // Show/hide custom time input
+        pickupTime.addEventListener('change', () => {
+            if (pickupTime.value === 'custom') {
+                customTimeContainer.classList.remove('hidden');
+            } else {
+                customTimeContainer.classList.add('hidden');
+            }
+        });
+        
+        // Form submission
+        checkoutForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // In a real app, you would send this data to your backend
+            console.log('Order submitted:', {
+                items: cart,
+                pickupTime: pickupTime.value === 'custom' ? document.getElementById('custom-time').value : pickupTime.value,
+                customerName: document.getElementById('customer-name').value,
+                customerPhone: document.getElementById('customer-phone').value,
+                customerNotes: document.getElementById('customer-notes').value
+            });
+            
+            // Generate random order number
+            const orderNumber = 'GS-' + Math.floor(10000 + Math.random() * 90000);
+            document.getElementById('order-number').textContent = orderNumber;
+            
+            // Show confirmation modal
+            checkoutModal.classList.add('hidden');
+            confirmationModal.classList.remove('hidden');
+            
+            // Clear cart
+            cart = [];
+            updateCart();
+        });
+        
+        closeConfirmation.addEventListener('click', () => {
+            confirmationModal.classList.add('hidden');
+        });
+        
+        // FAQ accordion functionality
+        const faqQuestions = document.querySelectorAll('.faq-question');
+        
+        faqQuestions.forEach(question => {
+            question.addEventListener('click', () => {
+                const answer = question.nextElementSibling;
+                const icon = question.querySelector('i');
+                
+                // Toggle answer
+                if (answer.style.maxHeight) {
+                    answer.style.maxHeight = null;
+                    icon.style.transform = 'rotate(0deg)';
+                } else {
+                    answer.style.maxHeight = answer.scrollHeight + 'px';
+                    icon.style.transform = 'rotate(180deg)';
+                }
+            });
+        });
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    // Close mobile menu if open
+                    if (!mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                }
+            });
+        });
+    </script>
+<p style="border-radius: 8px; text-align: center; font-size: 12px; color: #fff; margin-top: 16px;position: fixed; left: 8px; bottom: 8px; z-index: 10; background: rgba(0, 0, 0, 0.8); padding: 4px 8px;">Made with <img src="https://enzostvs-deepsite.hf.space/logo.svg" alt="DeepSite Logo" style="width: 16px; height: 16px; vertical-align: middle;display:inline-block;margin-right:3px;filter:brightness(0) invert(1);"><a href="https://enzostvs-deepsite.hf.space" style="color: #fff;text-decoration: underline;" target="_blank" >DeepSite</a> - 🧬 <a href="https://enzostvs-deepsite.hf.space?remix=mehmet12321/gelato-station" style="color: #fff;text-decoration: underline;" target="_blank" >Remix</a></p></body>
+</html>
